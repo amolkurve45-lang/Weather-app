@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Simple Weather Checker</title>
+
+<style>
+body{
+    margin:0;
+    font-family:sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    background:linear-gradient(120deg,#89f7fe,#66a6ff);
+    transition:0.4s;
+}
+
+.box{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    width:280px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+input{
+    padding:8px;
+    width:70%;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+button{
+    padding:8px;
+    border:none;
+    background:#007BFF;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+#output{
+    margin-top:15px;
+}
+
+.error{
+    color:red;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h3>🌤 Weather Checker</h3>
+
+    <input type="text" id="place" placeholder="Enter city">
+    <button onclick="checkWeather()">Check</button>
+
+    <p id="msg" class="error"></p>
+
+    <div id="output"></div>
+</div>
+
+<script>
+
+const key = "ad8600010a5330cace0e9ab86ee41607";
+
+async function checkWeather(){
+
+let city = document.getElementById("place").value.trim();
+let msg = document.getElementById("msg");
+let output = document.getElementById("output");
+
+msg.innerText = "";
+output.innerHTML = "";
+
+if(city === ""){
+    msg.innerText = "Enter city first!";
+    return;
+}
+
+try{
+
+let res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`);
+let data = await res.json();
+
+if(data.cod !== 200){
+    msg.innerText = "Invalid city!";
+    return;
+}
+
+let temp = data.main.temp;
+let weather = data.weather[0].main;
+let wind = data.wind.speed;
+
+// Background change (different colors)
+switch(weather){
+    case "Clear":
+        document.body.style.background = "linear-gradient(120deg,#f6d365,#fda085)";
+        break;
+    case "Clouds":
+        document.body.style.background = "linear-gradient(120deg,#d7d2cc,#304352)";
+        break;
+    case "Rain":
+        document.body.style.background = "linear-gradient(120deg,#4facfe,#00f2fe)";
+        break;
+    default:
+        document.body.style.background = "linear-gradient(120deg,#89f7fe,#66a6ff)";
+}
+
+// Output
+output.innerHTML = `
+<h4>${data.name}</h4>
+<p>🌡 ${temp}°C</p>
+<p>🌥 ${weather}</p>
+<p>💨 Wind: ${wind} km/h</p>
+`;
+
+}catch(e){
+msg.innerText = "Error loading data";
+}
+
+}
+
+// Enter key
+document.getElementById("place").addEventListener("keyup",function(e){
+if(e.key === "Enter"){
+checkWeather();
+}
+});
+
+</script>
+
+</body>
+</html>
